@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">view.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="po_num"/>
+                    <field name="ship_num"/>
+                    <field name="hs_is_active"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="before">
+                    <field name="color"/>
+                    <field name="hs_code"/>
+                    <field name="image" widget="image" class="oe_avatar" string="Image"/>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/tree/field[@name='product_uom_qty']"
+                       position="attributes">
+                    <attribute name="sum">Order Qty</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_delivered']"
+                       position="attributes">
+                    <attribute name="sum">Delivered Qty</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']"
+                       position="attributes">
+                    <attribute name="sum">Invoiced Qty</attribute>
+                </xpath>
+                <xpath expr="//field[@name='sale_order_option_ids']/tree/field[@name='quantity']"
+                       position="attributes">
+                    <attribute name="sum">Total Qty</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

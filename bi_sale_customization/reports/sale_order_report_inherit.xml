@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <template id="report_quotation_inherit_saleorder" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div//div[@id='informations']" position="after">
+                <div class="row justify-content-center align-self-center">
+                    <td class="text-left">
+                        <strong>PO No.</strong>
+                        <span t-field="doc.po_num"/>
+                    </td>
+                </div>
+                <div class="row justify-content-center align-self-center">
+                    <td class="text-left">
+                        <strong>Shipment No.</strong>
+                        <span t-field="doc.ship_num"/>
+                    </td>
+                </div>
+            </xpath>
+            <xpath expr="//div//table" position="replace">
+                <table class="table table-sm">
+                    <thead>
+                        <tr style="background-color:lightgray;">
+                            <t t-set="colspan" t-value="8"/>
+                            <th class="text-left">Description</th>
+                            <th class="text-left">Color</th>
+                            <th>
+                                <t t-if="doc.hs_is_active">
+                                    <span>HS Code</span>
+                                </t>
+                            </th>
+                            <th class="text-right">Quantity</th>
+                            <th class="text-right">Image</th>
+                            <th class="text-right">Unit Price</th>
+                            <th t-if="display_discount" class="text-right" groups="sale.group_discount_per_so_line">
+                                <span>Disc.(%)</span>
+                                <t t-set="colspan" t-value="colspan+1"/>
+                            </th>
+                            <th class="text-right">Taxes</th>
+                            <th class="text-right">
+                                <t groups="account.group_show_line_subtotals_tax_excluded">Amount</t>
+                                <t groups="account.group_show_line_subtotals_tax_included">Total Price</t>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="sale_tbody">
+
+                        <t t-set="current_subtotal" t-value="0"/>
+                        <t t-set="current_qty" t-value="0"/>
+
+                        <t t-foreach="doc.order_line" t-as="line">
+                            <t t-set="current_qty" t-value="current_qty + line.product_uom_qty"/>
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                               groups="account.group_show_line_subtotals_tax_excluded"/>
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                               groups="account.group_show_line_subtotals_tax_included"/>
+
+                            <tr t-att-class="'bg-200 font-weight-bold' if line.display_type == 'line_section' else 'font-italic' if line.display_type == 'line_note' else ''">
+                                <t t-if="not line.display_type">
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.color"/>
+                                    </td>
+                                    <td>
+                                        <t t-if="doc.hs_is_active">
+                                            <span t-field="line.hs_code"/>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="line.product_uom_qty"/>
+                                        <span t-field="line.product_uom" groups="uom.group_uom"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_id.image_small" t-options='{"widget": "image"}'/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="line.price_unit"/>
+                                    </td>
+                                    <td t-if="display_discount" class="text-right"
+                                        groups="sale.group_discount_per_so_line">
+                                        <span t-field="line.discount"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="line.price_subtotal"
+                                              groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-field="line.price_total"
+                                              groups="account.group_show_line_subtotals_tax_included"/>
+                                    </td>
+
+                                </t>
+                                <t t-if="line.display_type == 'line_section'">
+                                    <td t-att-colspan="colspan">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <t t-set="current_section" t-value="line"/>
+                                    <t t-set="current_subtotal" t-value="0"/>
+                                </t>
+                                <t t-if="line.display_type == 'line_note'">
+                                    <td t-att-colspan="colspan">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                </t>
+                            </tr>
+
+                            <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
+                                <tr class="is-subtotal text-right">
+                                    <td t-att-colspan="colspan">
+                                        <strong class="mr16">Subtotal</strong>
+                                        <span
+                                                t-esc="current_subtotal"
+                                                t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                        />
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                    <t t-set="colspan" t-value="6"/>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td t-att-colspan="colspan">
+                        <strong class="mr16">Total</strong>
+                        <span t-esc="current_qty"/>
+                    </td>
+                </table>
+            </xpath>
+        </template>
+    </data>
+</odoo>
