@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_repair_order_form_inherit" model="ir.ui.view">
+            <field name="name">view.repair.order.form.inherit</field>
+            <field name="model">repair.order</field>
+            <field name="inherit_id" ref="repair.view_repair_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_method']" position="after">
+                    <field name="receive_date"/>
+                    <field name="finish_date"/>
+                    <field name="location"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
