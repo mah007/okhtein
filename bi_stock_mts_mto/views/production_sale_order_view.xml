@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="production_sale_order_form_view" model="ir.ui.view">
+            <field name="name">production.sale.order.form.view</field>
+            <field name="model">production.sale.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col="4">
+                            <field name="sale_order_id"/>
+                            <field name="production_id"/>
+                            <field name="customer_id"/>
+                            <field name="project_name"/>
+                            <field name="customer_po"/>
+                            <field name="ordered_qty"/>
+                            <field name="avail_qty"/>
+                            <field name="qty_to_produce"/>
+                            <field name="status"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="production_sale_order_tree_view" model="ir.ui.view">
+            <field name="name">production.sale.order.tree.view</field>
+            <field name="model">production.sale.order</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="sale_order_id"/>
+                    <field name="customer_id"/>
+                    <field name="project_name"/>
+                    <field name="customer_po"/>
+                    <field name="ordered_qty"/>
+                    <field name="avail_qty"/>
+                    <field name="qty_to_produce"/>
+                    <field name="status"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>
