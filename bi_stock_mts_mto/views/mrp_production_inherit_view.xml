@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_production_form_view_inherit_sale_order" model="ir.ui.view">
+            <field name="name">mrp.production.form.view.inherit.sale.order</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[2]" position="after">
+                    <page string="Sale Orders">
+                        <field name="sale_production_ids" nolabel="1">
+                            <tree editable="bottom" delete="0" create="0">
+                                <field name="sale_order_id"/>
+                                <field name="customer_id"/>
+                                <field name="project_name"/>
+                                <field name="customer_po"/>
+                                <field name="ordered_qty"/>
+                                <field name="avail_qty"/>
+                                <field name="qty_to_produce"/>
+                                <field name="status"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+                <field name="origin" position="after">
+                    <field name="customer_reference"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
