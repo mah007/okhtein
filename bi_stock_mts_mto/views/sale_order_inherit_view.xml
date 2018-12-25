@@ -10,6 +10,22 @@
                     <field name="customer_po"/>
                     <field name="project_name"/>
                 </xpath>
+                <xpath expr="//button[@name='action_view_invoice']" position="before">
+                        <button name="action_view_purchase_orders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            attrs="{'invisible': [('purchase_order_count', '=', 0)]}">
+                            <field name="purchase_order_count" widget="statinfo" string="Purchases"/>
+                        </button>
+                        <button name="action_view_manufacture_orders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list-alt"
+                            attrs="{'invisible': [('manufacture_order_count', '=', 0)]}">
+                            <field name="manufacture_order_count" widget="statinfo" string="Manufactures"/>
+                        </button>
+                </xpath>
             </field>
         </record>
     </data>
