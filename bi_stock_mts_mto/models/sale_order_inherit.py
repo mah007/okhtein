@@ -17,8 +17,8 @@ class SaleOrder(models.Model):
             purchase_order_objects = self.env['purchase.order'].sudo().search([('sale_order_id', '=', order.id)])
             purchase_order_line_objects = self.env['purchase.order.line'].sudo().search(
                 [('sale_order_id', '=', order.id)])
-            print ("purchase_order_objects", purchase_order_objects)
             for purchase_order_line in purchase_order_line_objects:
+
                 if purchase_order_line.order_id not in purchase_order_objects:
                     purchase_order_objects += purchase_order_line.order_id
             order.purchase_order_count = len(purchase_order_objects)
@@ -114,17 +114,19 @@ class SaleOrder(models.Model):
                 product_desc = product_id.description_sale
             else:
                 product_desc = product_id.name
-            vals = {'product_id': product_id.id,
-                    'product_qty': qty - virtual_qty,
-                    'product_uom': product_id.uom_id.id,
-                    'price_unit': product_id.standard_price,
-                    'name': product_desc,
-                    'date_planned': fields.Datetime.now(),
-                    'sale_order_id': self.id,
-                    }
             origin = self.name + ": Buy -> CustomersMTO"
             if rfq:
-                rfq.write({'origin': origin, 'order_line': [(0, 0, vals)]})
+                rfq.write({'origin': origin})
+                created_purchase_order_line = self.env['purchase.order.line'].sudo().create(
+                    {'product_id': product_id.id,
+                     'product_qty': qty - virtual_qty,
+                     'product_uom': product_id.uom_id.id,
+                     'price_unit': product_id.standard_price,
+                     'name': product_desc,
+                     'date_planned': fields.Datetime.now(),
+                     'order_id': rfq.id
+                     })
+                created_purchase_order_line.write({'sale_order_id': self.id, })
             else:
                 seq_id = self.env['ir.sequence'].search(
                     [('code', '=', 'purchase.order'), ('company_id', '=', self.company_id.id)]).id
@@ -136,16 +138,24 @@ class SaleOrder(models.Model):
                     [('code', '=', 'incoming'), ('warehouse_id.company_id', '=', self.company_id.id)])
                 if not types:
                     types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', False)])
-                self.env['purchase.order'].sudo().create({
+                created_purchase_order = self.env['purchase.order'].sudo().create({
                     'partner_id': vendor.name.id,
                     'origin': origin,
                     'name': seq,
                     'sale_order_id': self.id,
                     'company_id': self.company_id.id,
                     'picking_type_id': types[:1].id,
-                    'order_line': [(0, 0, vals)]
                 })
-            break
+                created_purchase_order_line = self.env['purchase.order.line'].sudo().create(
+                    {'product_id': product_id.id,
+                     'product_qty': qty - virtual_qty,
+                     'product_uom': product_id.uom_id.id,
+                     'price_unit': product_id.standard_price,
+                     'name': product_desc,
+                     'date_planned': fields.Datetime.now(),
+                     'order_id': created_purchase_order.id
+                     })
+                created_purchase_order_line.write({'sale_order_id': self.id, })
 
     @api.multi
     def action_confirm(self):
@@ -245,13 +255,24 @@ class SaleOrder(models.Model):
     @api.multi
     def action_cancel(self):
         for record in self:
-            # rfqs = self.env['purchase.order'].sudo().search([('sale_production_id', '=', record.id)])
-            # for rfq in rfqs:
-            #     rfq.button_cancel()
-            # rfq_lines = self.env['purchase.order.line'].sudo().search([('sale_production_id', '=', record.id)])
-            # for line in rfq_lines:
-            #     if line.order_id not in rfqs:
-            #         line.unlink()
+            purchase_order_objects = self.env['purchase.order'].sudo().search(
+                ['|', ('sale_order_id', '=', record.id), ('origin', '=', record.name)])
+            for purchase_order in purchase_order_objects:
+                if purchase_order.state not in ('done', 'cancel', 'purchase'):
+                    purchase_order.button_cancel()
+                else:
+                    raise ValidationError(
+                        _("You have already proceed in purchase order (%s)") % (purchase_order.name))
+
+            purchase_order_line_objects = self.env['purchase.order.line'].sudo().search(
+                [('sale_order_id', '=', record.id)])
+            for purchase_order_line in purchase_order_line_objects:
+                if purchase_order_line.order_id not in purchase_order_line_objects:
+                    if purchase_order_line.order_id.state not in ['done', 'cancel', 'purchase']:
+                        purchase_order_line.unlink()
+                    else:
+                        raise ValidationError(
+                            _("You have already proceed in purchase order (%s)") % (purchase_order_line.order_id.name))
 
             # related manufacturing order
             mos = self.env['mrp.production'].sudo().search(
@@ -270,7 +291,6 @@ class SaleOrder(models.Model):
 
                 for production_order in self.env['production.sale.order'].sudo().search(
                         [('production_id', '=', mo.id), ('sale_order_id', '=', record.id), ('status', '!=', 'cancel')]):
-
                     total_qty += production_order.qty_to_produce
                     production_order.write({'status': 'cancel'})
                 if mo.product_qty <= total_qty:
