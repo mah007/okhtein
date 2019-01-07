@@ -241,3 +241,40 @@ class SaleOrder(models.Model):
                     [('sale_order_id', '=', order.id), ('status', '!=', 'cancel')]):
                 production_sale_order.write({'status': 'locked'})
         return super(SaleOrder, self).action_done()
+
+    @api.multi
+    def action_cancel(self):
+        for record in self:
+            # rfqs = self.env['purchase.order'].sudo().search([('sale_production_id', '=', record.id)])
+            # for rfq in rfqs:
+            #     rfq.button_cancel()
+            # rfq_lines = self.env['purchase.order.line'].sudo().search([('sale_production_id', '=', record.id)])
+            # for line in rfq_lines:
+            #     if line.order_id not in rfqs:
+            #         line.unlink()
+
+            # related manufacturing order
+            mos = self.env['mrp.production'].sudo().search(
+                [('sale_order_id', '=', record.id), ('state', '!=', 'cancel')])
+
+            for production_order in self.env['production.sale.order'].sudo().search(
+                    [('sale_order_id', '=', record.id), ('status', '!=', 'cancel')]):
+                if production_order.production_id not in mos and production_order.production_id.state != 'cancel':
+                    mos += production_order.production_id
+
+            for mo in mos:
+                if mo.state not in ['confirmed', 'cancel']:
+                    raise ValidationError(_("You have already proceed in manufacturing order (%s)") % (mo.name))
+
+                total_qty = 0
+
+                for production_order in self.env['production.sale.order'].sudo().search(
+                        [('production_id', '=', mo.id), ('sale_order_id', '=', record.id), ('status', '!=', 'cancel')]):
+
+                    total_qty += production_order.qty_to_produce
+                    production_order.write({'status': 'cancel'})
+                if mo.product_qty <= total_qty:
+                    mo.action_cancel()
+                else:
+                    mo.change_product_qty(-total_qty)
+        return super(SaleOrder, self).action_cancel()
