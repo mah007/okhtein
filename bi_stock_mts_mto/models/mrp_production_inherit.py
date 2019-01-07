@@ -7,9 +7,9 @@ import math
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
-    sale_order_id = fields.Many2one('sale.order', string="Source Document")
+    sale_order_id = fields.Many2one('sale.order', string="Source Document", track_visibility='onchange', )
     sale_production_ids = fields.One2many('production.sale.order', 'production_id', string="Sale Orders")
-    customer_reference = fields.Char(string='Customer', copy=False, readonly=True)
+    customer_reference = fields.Char(string='Customer', copy=False, readonly=True, track_visibility='onchange', )
     product_qty = fields.Float(string='Quantity To Produce', default=1.0, readonly=True, required=True,
                                track_visibility='onchange', states={'confirmed': [('readonly', False)]})
 

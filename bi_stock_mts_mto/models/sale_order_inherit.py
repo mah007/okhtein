@@ -233,3 +233,11 @@ class SaleOrder(models.Model):
                             self.create_po_procurement_order(mrp_line.product_id, mrp_line.product_uom_qty, True)
                         elif procurement_method == 'manufacture':
                             self.create_mo_procurement_order(mrp_line.product_id, mrp_line.product_uom_qty, True)
+
+    @api.multi
+    def action_done(self):
+        for order in self:
+            for production_sale_order in self.env['production.sale.order'].sudo().search(
+                    [('sale_order_id', '=', order.id), ('status', '!=', 'cancel')]):
+                production_sale_order.write({'status': 'locked'})
+        return super(SaleOrder, self).action_done()
