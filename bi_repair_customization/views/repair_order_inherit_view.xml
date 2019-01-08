@@ -6,10 +6,17 @@
             <field name="model">repair.order</field>
             <field name="inherit_id" ref="repair.view_repair_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='invoice_method']" position="after">
+                <xpath expr="//field[@name='location_id']" position="after">
+                    <field name="location_destination"/>
                     <field name="receive_date"/>
                     <field name="finish_date"/>
-                    <field name="location"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="source_location"/>
+                    <field name="destination_location"/>
+                </xpath>
+                <xpath expr="//page/group/group/field[@name='move_id']" position="after">
+                    <field name="confirm_id"/>
                 </xpath>
             </field>
         </record>

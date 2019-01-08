@@ -6,6 +6,11 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="po_number"/>
+                    <field name="shipment_number"/>
+                    <field name="print_hs_code"/>
+                </xpath>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="after">
                     <field name="color"/>
                     <field name="hs_code"/>

@@ -3,18 +3,17 @@
     <data>
         <template id="report_quotation_inherit_saleorder" inherit_id="sale.report_saleorder_document">
             <xpath expr="//div//div[@id='informations']" position="after">
-                <div class="row justify-content-center align-self-center">
-                    <td class="text-left">
+                <div class="row col mt32 mb32">
+                    <div class="mr32">
                         <strong>PO No.</strong>
-                        <span t-field="doc.po_num"/>
-                    </td>
-                </div>
-                <div class="row justify-content-center align-self-center">
-                    <td class="text-left">
+                        <p t-field="doc.po_number"/>
+                    </div>
+                    <div class="mr32">
                         <strong>Shipment No.</strong>
-                        <span t-field="doc.ship_num"/>
-                    </td>
+                        <p t-field="doc.shipment_number"/>
+                    </div>
                 </div>
+
             </xpath>
             <xpath expr="//div//table" position="replace">
                 <table class="table table-sm">
@@ -24,7 +23,7 @@
                             <th class="text-left">Description</th>
                             <th class="text-left">Color</th>
                             <th>
-                                <t t-if="doc.hs_is_active">
+                                <t t-if="doc.print_hs_code">
                                     <span>HS Code</span>
                                 </t>
                             </th>
@@ -63,7 +62,7 @@
                                         <span t-field="line.color"/>
                                     </td>
                                     <td>
-                                        <t t-if="doc.hs_is_active">
+                                        <t t-if="doc.print_hs_code">
                                             <span t-field="line.hs_code"/>
                                         </t>
                                     </td>

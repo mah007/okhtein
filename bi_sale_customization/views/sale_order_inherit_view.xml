@@ -6,10 +6,10 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="po_num"/>
-                    <field name="ship_num"/>
-                    <field name="hs_is_active"/>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="po_number"/>
+                    <field name="shipment_number"/>
+                    <field name="print_hs_code"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="before">
                     <field name="color"/>
