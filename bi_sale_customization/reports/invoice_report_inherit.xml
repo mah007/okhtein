@@ -4,17 +4,15 @@
         <!--Inherit invoice report (from module sale) -->
         <template id="report_invoice_inherit_on_saleorder" inherit_id="account.report_invoice_document">
             <xpath expr="//table" position="before">
-                <div class="row justify-content-center align-self-center">
-                    <td class="text-left">
+                <div class="row col mt32 mb32">
+                    <div class="mr32">
                         <strong>PO No.</strong>
-                        <span t-field="o.po_number"/>
-                    </td>
-                </div>
-                <div class="row justify-content-center align-self-center">
-                    <td class="text-left">
+                        <p t-field="o.po_number"/>
+                    </div>
+                    <div class="mr32">
                         <strong>Shipment No.</strong>
-                        <span t-field="o.shipment_number"/>
-                    </td>
+                        <p t-field="o.shipment_number"/>
+                    </div>
                 </div>
             </xpath>
             <xpath expr="//table" position="replace">
