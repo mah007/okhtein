@@ -9,7 +9,7 @@ class SaleOrder(models.Model):
     po_number = fields.Char(string="PO Number")
     shipment_number = fields.Char(string="Shipment Number")
     print_hs_code = fields.Boolean(string="Print HS Code")
-    expected_date = fields.Datetime("Expected Date", compute=False, readonly=False, store=True,
+    expected_date = fields.Datetime("Expected Date", compute=False, readonly=False, store=True,oldname='commitment_date',
                                     help="Delivery date you can promise to the customer, computed from product lead times and from the shipping policy of the order.")
 
     @api.multi
