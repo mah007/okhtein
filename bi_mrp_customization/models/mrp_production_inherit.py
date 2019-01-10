@@ -35,6 +35,7 @@ class MrpProduction(models.Model):
             self.move_finished_ids._action_cancel()
             self.move_raw_ids.unlink()
             self.move_finished_ids.unlink()
+            self.picking_ids.unlink()
             self._generate_moves()
         return res
 
