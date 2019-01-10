@@ -9,7 +9,8 @@ class SaleOrder(models.Model):
     po_number = fields.Char(string="PO Number")
     shipment_number = fields.Char(string="Shipment Number")
     print_hs_code = fields.Boolean(string="Print HS Code")
-    expected_date = fields.Datetime("Expected Date", compute=False, readonly=False, store=True,oldname='commitment_date',
+    expected_date = fields.Datetime("Expected Date", compute=False, readonly=False, store=True,
+                                    oldname='commitment_date',
                                     help="Delivery date you can promise to the customer, computed from product lead times and from the shipping policy of the order.")
 
     @api.multi
@@ -32,6 +33,15 @@ class SaleOrder(models.Model):
         invoice_vals['shipment_number'] = self.shipment_number or False
         invoice_vals['print_hs_code'] = self.print_hs_code or False
         return invoice_vals
+
+    @api.multi
+    def action_confirm(self):
+        res = super(SaleOrder, self).action_confirm()
+        for order in self:
+            if order.expected_date and order.picking_ids:
+                for picking in order.picking_ids:
+                    picking.write({'scheduled_date': order.expected_date})
+        return res
 
 
 class SaleOrderLine(models.Model):
