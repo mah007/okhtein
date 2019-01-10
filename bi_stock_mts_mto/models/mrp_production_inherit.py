@@ -13,6 +13,29 @@ class MrpProduction(models.Model):
     product_qty = fields.Float(string='Quantity To Produce', default=1.0, readonly=True, required=True,
                                track_visibility='onchange', states={'confirmed': [('readonly', False)]})
 
+    @api.multi
+    def write(self, values):
+        res = super(MrpProduction, self).write(values)
+        for order in self:
+            if 'product_qty' in values:
+                for picking in order.picking_ids:
+                    for move in picking.move_ids_without_package:
+                        # finished product
+                        if move.product_id == order.product_id:
+                            if order.bom_id.product_qty == 1:
+                                move.write({'product_uom_qty': values['product_qty']})
+                            elif order.bom_id.product_qty > 1:
+                                move.write({'product_uom_qty': values['product_qty'] / order.bom_id.product_qty})
+                        # component
+                        for bom_line in order.bom_id.bom_line_ids:
+                            if bom_line.product_id == move.product_id:
+                                if order.bom_id.product_qty == 1:
+                                    move.write({'product_uom_qty': values['product_qty'] * bom_line.product_qty})
+                                elif order.bom_id.product_qty > 1:
+                                    move.write({'product_uom_qty': (values[
+                                                                        'product_qty'] * bom_line.product_qty) / order.bom_id.product_qty})
+        return res
+
     @api.model
     def _update_product_to_produce(self, production, qty):
         production_move = production.move_finished_ids.filtered(
