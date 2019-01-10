@@ -17,7 +17,7 @@ class MrpProduction(models.Model):
     def write(self, values):
         res = super(MrpProduction, self).write(values)
         for order in self:
-            if 'product_qty' in values:
+            if 'product_qty' in values and 'bom_id' not in values:
                 for picking in order.picking_ids:
                     for move in picking.move_ids_without_package:
                         # finished product
