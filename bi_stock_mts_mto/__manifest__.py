@@ -15,7 +15,6 @@
         'views/production_sale_order_view.xml',
         'views/sale_order_inherit_view.xml',
         'views/mrp_production_inherit_view.xml',
-        'views/stock_location_route_inherit_view.xml',
     ],
     'installable': True,
     'auto_install': False,
