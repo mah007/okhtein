@@ -209,7 +209,7 @@ class SaleOrder(models.Model):
                     customer = mrp.customer_reference + ', ' + customer
             else:
                 picking_type_id = self.env['stock.picking.type'].sudo().search(
-                    [('code', '=', 'mrp_operation'), ('warehouse_id.company_id', '=', self.company_id.id)], limit=1).id
+                    [('code', '=', 'mrp_operation'), ('warehouse_id.company_id', '=', self.company_id.id)], limit=1)
                 seq_id = self.env['ir.sequence'].sudo().search(
                     [('code', '=', 'mrp.production'), ('company_id', '=', self.company_id.id)]).id
                 seq = 'New'
@@ -222,8 +222,10 @@ class SaleOrder(models.Model):
                     'bom_id': prod_id.id,
                     'name': seq,
                     'company_id': self.company_id.id,
-                    'picking_type_id': picking_type_id,
+                    'picking_type_id': prod_id.picking_type_id.id if prod_id.picking_type_id.id else picking_type_id.id,
                     'sale_order_id': self.id,
+                    'location_src_id': prod_id.picking_type_id.default_location_src_id.id if prod_id.picking_type_id.default_location_src_id.id else picking_type_id.default_location_src_id.id,
+                    'location_dest_id': prod_id.picking_type_id.default_location_dest_id.id if prod_id.picking_type_id.default_location_dest_id.id else picking_type_id.default_location_dest_id.id,
                 })
             if mrp:
                 sale_production_vals = {'sale_order_id': self.id, 'status': 'sale', 'ordered_qty': qty,
