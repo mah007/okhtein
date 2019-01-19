@@ -7,16 +7,17 @@
             <field name="inherit_id" ref="repair.view_repair_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='location_id']" position="after">
-                    <field name="location_destination"/>
+                    <field name="destination_location_id"/>
                     <field name="receive_date"/>
                     <field name="finish_date"/>
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="source_location"/>
-                    <field name="destination_location"/>
+                    <field name="receipt_source_location_id"/>
+                    <field name="receipt_destination_location_id"/>
                 </xpath>
-                <xpath expr="//page/group/group/field[@name='move_id']" position="after">
-                    <field name="confirm_id"/>
+                <xpath expr="//page/group/group/field[@name='move_id']" position="replace">
+                    <field name="receipt_stock_picking_id"/>
+                    <field name="delivery_stock_picking_id"/>
                 </xpath>
             </field>
         </record>
